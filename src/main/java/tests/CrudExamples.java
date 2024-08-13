@@ -15,86 +15,90 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
 public class CrudExamples {
-	
+
 	String id;
 	JSONObject requestBody;
 	
 	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public void setup() {
+		
 		RestAssured.baseURI = "https://keytodorestapi.herokuapp.com/";
 		Faker fake = new Faker();
 		
-		requestBody = new JSONObject();
-		requestBody.put( "title", fake.beer().name());
-		requestBody.put("body", fake.chuckNorris().fact());
-		
-		
+		requestBody =  new JSONObject();
+		requestBody.put("title", fake.lordOfTheRings().character());
+		requestBody.put("body", fake.chuckNorris().fact());	
 	}
+	
 	
 	@SuppressWarnings("unchecked")
-	@Test(priority = 1)
-	public void postAToDoMessage() {
-			
-			Response response = 
+	@Test(priority=1)
+	public void postATodoMessage() {
+		
+	Response response=	
 					given().
-				header("Content-Type", "application/json").			
-				body(requestBody.toJSONString()).	
-			when(). 
-				post("api/save").
-			then(). 
-				statusCode(200).
-				body("info",is( equalTo("Todo saved! Nice job!"))).
+						header("Content-Type", "application/json"). 
+						body(requestBody.toJSONString()).			
+					when(). 
+						post("api/save").
+					then(). 
+						statusCode(200).
+						body("info",is( equalTo("Todo saved! Nice job!"))). 
 				extract().response();
-			
-			System.out.println(response.asPrettyString());
-				
-			id = response.jsonPath().getString("id");
+		
+	System.out.println(response.asPrettyString());
+		
+	id = response.jsonPath().getString("id");
 	}
 	
-	@Test(priority = 2, dependsOnMethods = "postAToDoMessage")
-	public void readToDo() {
-		Response response = 
-				given().
-		header("Content-Type", "application/json").			
-		when(). 
-			get("api/"+ id).
-		then(). 
-			statusCode(200).
-			extract().response();
+	@Test(priority = 2, dependsOnMethods = "postATodoMessage")
+	public void readTodo() {
 		
-		System.out.println(response.asPrettyString());
+		Response response=	
+				given().
+					header("Content-Type", "application/json"). 			
+				when(). 
+					get("api/"+id).
+				then(). 
+					statusCode(200).
+			extract().response();
+	
+		System.out.println(response.asPrettyString());		
+		
 	}
 	
-	@Test(priority = 3, dependsOnMethods = "postAToDoMessage")
-	public void updateToDo() {
-		Response response = 
+	@Test(priority = 3, dependsOnMethods = "postATodoMessage")
+	public void updateTodo() {
+		Response response=	
 				given().
-			header("Content-Type", "application/json").			
-			body(requestBody.toJSONString()).	
-		when(). 
-			put("api/todos/"+id).
-		then(). 
-			statusCode(201).
-			body("msg",is( equalTo("Item updated"))).
+					header("Content-Type", "application/json"). 
+					body(requestBody.toJSONString()).			
+				when(). 
+					put("api/todos/"+id).
+				then(). 
+					statusCode(201).
+					body("msg",is( equalTo("Item updated"))). 
 			extract().response();
-		
-		System.out.println(response.asPrettyString());
+	
+     System.out.println(response.asPrettyString());
 	}
 	
-	@Test(priority = 4, dependsOnMethods = "postAToDoMessage")
-	public void deleteToDo() {
-		Response response = 
-				given().
-		header("Content-Type", "application/json").			
-		when(). 
-			delete("api/delete/"+ id).
-		then(). 
-			statusCode(200).
-			body("msg",is( equalTo("Event deleted."))).
-			extract().response();
+	@Test(priority = 4, dependsOnMethods = "postATodoMessage")
+	public void deleteTodo() {
 		
-		System.out.println(response.asPrettyString());
+		Response response=	
+				given().
+					header("Content-Type", "application/json"). 			
+				when(). 
+					delete("api/delete/"+id).
+				then(). 
+					statusCode(200).
+					body("msg",is( equalTo("Event deleted."))).
+			extract().response();
+	
+		System.out.println(response.asPrettyString());	
+		
+		
 	}
-
 }
